@@ -298,13 +298,13 @@ function App() {
 
       <section id="hackathons" className="section hackathons-section">
         <h2>Hackathons & Major Projects</h2>
-        <div className="alt-timeline-container" style={{position: 'relative', display: 'grid', gridTemplateColumns: '1fr 40px 1fr', gap: '0', alignItems: 'center'}} ref={timelineRef}>
+  <div className="alt-timeline-container" style={{position: 'relative', display: 'grid', gridTemplateColumns: '1fr 60px 1fr', gap: '0', alignItems: 'center'}} ref={timelineRef}>
           {/* Vertical timeline line from first to last card */}
           {lineDims.height > 0 && (
             <svg
-              width="6"
+              width="16"
               height={lineDims.height}
-              viewBox={`0 0 6 ${lineDims.height}`}
+              viewBox={`0 0 16 ${lineDims.height}`}
               style={{
                 position: 'absolute',
                 left: '50%',
@@ -315,7 +315,7 @@ function App() {
               }}
               aria-hidden="true"
             >
-              <rect x="2" y="0" width="2" height={lineDims.height} rx="2" fill="#00bcd4" opacity="0.5" />
+              <rect x="6" y="0" width="4" height={lineDims.height} rx="2" fill="#00bcd4" opacity="0.7" />
             </svg>
           )}
           {/* Timeline cards in zig-zag grid */}
@@ -324,71 +324,57 @@ function App() {
               title: 'PyExpo 2025',
               side: 'left',
               role: 'Team Lead',
-              tech: ['Django', 'Python', 'PostgreSQL', 'Bootstrap'],
-              description: 'Built a local marketplace web app for farmers to sell produce directly to consumers, with real-time inventory, order tracking, and payment integration. Led a team of 4, handled backend and deployment.',
-              outcome: 'Won Best Social Impact Award. Used by 200+ local farmers.',
-              repo: 'https://github.com/T043_CODECRAFTERS',
-              image: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg',
+              tech: ['Django', 'Python'],
+              description: 'Built a marketplace web app for farmers to sell produce directly to consumers.',
+              outcome: '1st Place, Best Social Impact',
             },
             {
               title: 'Hack BIT 2025',
               side: 'right',
               role: 'AI/ML Developer',
-              tech: ['Python', 'OpenCV', 'scikit-learn', 'Flask'],
-              description: 'Developed a facial recognition attendance system for classrooms. Implemented face detection, recognition, and attendance logging with a web dashboard. Collaborated with 3 teammates.',
-              outcome: 'Winners in AI/ML track. Deployed in 2 pilot colleges.',
-              repo: 'https://github.com/BIT-25',
-              image: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
+              tech: ['Python', 'OpenCV'],
+              description: 'Created a facial recognition attendance system for classrooms.',
+              outcome: 'Winners, AI/ML Track',
             },
             {
               title: 'KPR Hackathon',
               side: 'left',
               role: 'Participant',
-              tech: ['React', 'Dialogflow', 'Node.js'],
-              description: 'Created an AI-powered virtual patient chatbot for psychology students to practice counseling. Designed conversation flows and integrated NLP for realistic scenarios.',
-              outcome: 'Finalist. Demoed to 100+ students.',
-              repo: 'https://github.com/KPR-Hackathon',
-              image: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+              tech: ['React', 'Node.js'],
+              description: 'Developed an AI-powered virtual patient chatbot for psychology students.',
+              outcome: 'Finalist',
             },
             {
               title: 'IteliFlow',
               side: 'right',
               role: 'Automation Engineer',
-              tech: ['UiPath', 'Python', 'Excel'],
-              description: 'Automated the candidate selection process for a hackathon using UiPath bots. Extracted, filtered, and ranked applicants from spreadsheets, saving 20+ hours of manual work.',
-              outcome: 'Improved selection speed by 80%.',
-              repo: 'https://github.com/Selection_Automation',
-              image: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/uipath/uipath-original.svg',
+              tech: ['UiPath', 'Python'],
+              description: 'Automated candidate selection for a hackathon using bots.',
+              outcome: 'Improved selection speed by 80%',
             },
             {
               title: 'IEEE Hackathon',
               side: 'left',
               role: 'Hardware Developer',
-              tech: ['Arduino', 'C++', 'Python'],
-              description: 'Built a portable milk analyzer device for dairy supply chains. Designed hardware, wrote firmware, and built a Python dashboard for data analysis.',
-              outcome: 'Prototype tested with 3 local dairies.',
-              repo: 'https://github.com/Portable-Milk-Analyzer',
-              image: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original.svg',
+              tech: ['Arduino', 'Python'],
+              description: 'Built a portable milk analyzer device for dairy supply chains.',
+              outcome: 'Prototype tested, Top 5',
             },
-          ].map((event, i) => (
+          ].map((event) => (
             <React.Fragment key={event.title}>
               {event.side === 'left' ? (
-                <div className="alt-timeline-card left" style={{gridColumn: '1 / 2', justifySelf: 'end'}}>
+                <div className="alt-timeline-card left" style={{gridColumn: '1 / 2', justifySelf: 'end', marginRight: '32px'}}>
                   <div className="alt-timeline-card-inner">
-                    <div className="alt-timeline-card-header">
-                      <img src={event.image} alt={event.title} className="alt-timeline-card-img" />
-                      <div>
-                        <h3>{event.title}</h3>
-                        <span className="alt-timeline-role">{event.role}</span>
-                      </div>
+                    <div className="alt-timeline-card-header" style={{display: 'flex', alignItems: 'center', gap: '0.5em'}}>
+                      <h3 style={{margin: 0}}>{event.title}</h3>
+                      <span className="alt-timeline-role" style={{fontWeight: 500, fontSize: '1em', color: '#00bcd4'}}>{event.role}</span>
                     </div>
                     <div className="alt-timeline-card-body">
                       <p className="alt-timeline-desc">{event.description}</p>
                       <div className="alt-timeline-tech">
                         {event.tech.map(t => <span key={t} className="alt-timeline-tech-chip">{t}</span>)}
                       </div>
-                      <div className="alt-timeline-outcome">{event.outcome}</div>
-                      <a href={event.repo} className="alt-timeline-link" target="_blank" rel="noopener noreferrer">View Repo</a>
+                      <div className="alt-timeline-outcome" style={{marginTop: '0.5em', fontWeight: 600, color: '#0ef6cc'}}>{event.outcome}</div>
                     </div>
                   </div>
                 </div>
@@ -396,22 +382,18 @@ function App() {
               {/* Spacer for the timeline line */}
               <div style={{gridColumn: '2 / 3'}} />
               {event.side === 'right' ? (
-                <div className="alt-timeline-card right" style={{gridColumn: '3 / 4', justifySelf: 'start'}}>
+                <div className="alt-timeline-card right" style={{gridColumn: '3 / 4', justifySelf: 'start', marginLeft: '32px'}}>
                   <div className="alt-timeline-card-inner">
-                    <div className="alt-timeline-card-header">
-                      <img src={event.image} alt={event.title} className="alt-timeline-card-img" />
-                      <div>
-                        <h3>{event.title}</h3>
-                        <span className="alt-timeline-role">{event.role}</span>
-                      </div>
+                    <div className="alt-timeline-card-header" style={{display: 'flex', alignItems: 'center', gap: '0.5em'}}>
+                      <h3 style={{margin: 0}}>{event.title}</h3>
+                      <span className="alt-timeline-role" style={{fontWeight: 500, fontSize: '1em', color: '#00bcd4'}}>{event.role}</span>
                     </div>
                     <div className="alt-timeline-card-body">
                       <p className="alt-timeline-desc">{event.description}</p>
                       <div className="alt-timeline-tech">
                         {event.tech.map(t => <span key={t} className="alt-timeline-tech-chip">{t}</span>)}
                       </div>
-                      <div className="alt-timeline-outcome">{event.outcome}</div>
-                      <a href={event.repo} className="alt-timeline-link" target="_blank" rel="noopener noreferrer">View Repo</a>
+                      <div className="alt-timeline-outcome" style={{marginTop: '0.5em', fontWeight: 600, color: '#0ef6cc'}}>{event.outcome}</div>
                     </div>
                   </div>
                 </div>
@@ -421,10 +403,6 @@ function App() {
         </div>
       </section>
 
-      <section id="other-projects" className="section other-projects-section">
-        <h2>Other Projects</h2>
-        <p>More details coming soon...</p>
-      </section>
 
       <section id="contact" className="section contact-section">
         <h2>Contact</h2>
