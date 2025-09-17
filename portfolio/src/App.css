@@ -37,7 +37,15 @@
   font-size: 1rem;
   position: relative;
   margin: 0 1.2rem;
-  transition: box-shadow 0.25s, transform 0.25s;
+  transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
+}
+
+.alt-timeline-card-inner:hover {
+  box-shadow: 0 12px 48px 0 rgba(0,188,212,0.22), 0 0 0 8px var(--accent2, #00bcd4);
+  transform: translateY(-8px) scale(1.03);
+  border: 2.5px solid var(--accent2, #00bcd4);
+  background: rgba(255,255,255,0.28);
+  cursor: pointer;
 }
 .alt-timeline-card.left .alt-timeline-card-inner {
   margin-left: 0;

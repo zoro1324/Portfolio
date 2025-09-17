@@ -1,50 +1,3 @@
-// Vertical ship animation component for vertical timeline
-function ShipOnTimelineVertical() {
-  const shipRef = useRef(null);
-  useEffect(() => {
-    function moveShip() {
-      const path = document.getElementById('vertical-timeline-path');
-      if (!path) return;
-      const totalLength = path.getTotalLength();
-      const section = document.getElementById('hackathons');
-      if (!section) return;
-      const rect = section.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      // Progress: 0 at top, 1 at bottom of section
-      let progress = 1 - Math.max(0, Math.min(1, (rect.bottom - 100) / (windowHeight + rect.height - 100)));
-      progress = Math.max(0, Math.min(1, progress));
-      // Snap to event positions
-      const snapPoints = [0, 0.25, 0.5, 0.75, 1];
-      let closest = snapPoints[0];
-      for (let i = 1; i < snapPoints.length; i++) {
-        if (Math.abs(progress - snapPoints[i]) < Math.abs(progress - closest)) {
-          closest = snapPoints[i];
-        }
-      }
-      // If close to a snap point, snap to it
-      if (Math.abs(progress - closest) < 0.08) progress = closest;
-      const point = path.getPointAtLength(progress * totalLength);
-      if (shipRef.current) {
-        shipRef.current.style.left = `${point.x - 24}px`;
-        shipRef.current.style.top = `${point.y - 40}px`;
-      }
-    }
-    window.addEventListener('scroll', moveShip);
-    moveShip();
-    return () => window.removeEventListener('scroll', moveShip);
-  }, []);
-  return (
-    <div ref={shipRef} style={{position: 'absolute', width: 48, height: 48, zIndex: 2, transition: 'left 0.2s, top 0.2s'}}>
-      <svg width="48" height="48" viewBox="0 0 48 48">
-        <g>
-          <rect x="18" y="28" width="12" height="8" rx="3" fill="#04364a" stroke="#00bcd4" strokeWidth="2"/>
-          <polygon points="24,8 28,28 20,28" fill="#ffe0b2" stroke="#04364a" strokeWidth="2"/>
-          <rect x="22" y="16" width="4" height="12" fill="#00bcd4"/>
-        </g>
-      </svg>
-    </div>
-  );
-}
 import './App.css';
 import React, { useState, useEffect, useRef } from 'react';
 // ShipOnTimeline component must be defined at the top level, outside App
@@ -110,9 +63,44 @@ function applyTheme(theme) {
 }
 
 function App() {
+  // Ship animation along the zig-zag path
+  const [lineDims, setLineDims] = useState({ top: 0, height: 0 });
+  const shipRef = useRef(null);
   const [darkMode, setDarkMode] = useState(false);
   const timelineRef = useRef(null);
-  const [lineDims, setLineDims] = useState({ top: 0, height: 0 });
+
+  useEffect(() => {
+    function moveShip() {
+      const path = document.getElementById('curvy-timeline-path');
+      if (!path) return;
+      const totalLength = path.getTotalLength();
+      const section = document.getElementById('hackathons');
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      let progress = 1 - Math.max(0, Math.min(1, (rect.bottom - 100) / (windowHeight + rect.height - 100)));
+      progress = Math.max(0, Math.min(1, progress));
+      const point = path.getPointAtLength(progress * totalLength);
+      // Position ship relative to the timeline container, not the viewport
+      const timeline = document.querySelector('.alt-timeline-container');
+      const svg = path.ownerSVGElement;
+      if (shipRef.current && timeline && svg) {
+        // Center horizontally: SVG is centered in timeline, so offset by half timeline width minus half SVG width
+        const timelineRect = timeline.getBoundingClientRect();
+        const svgRect = svg.getBoundingClientRect();
+        const timelineWidth = timelineRect.width;
+        const svgWidth = svgRect.width;
+        // The SVG is centered, so its left = timeline left + (timelineWidth - svgWidth)/2
+        const svgLeft = (timelineWidth - svgWidth) / 2;
+        shipRef.current.style.left = `${svgLeft + point.x - 24}px`;
+        shipRef.current.style.top = `${point.y - 40}px`;
+        shipRef.current.style.transform = `translateY(${lineDims.top}px)`;
+      }
+    }
+    window.addEventListener('scroll', moveShip);
+    moveShip();
+    return () => window.removeEventListener('scroll', moveShip);
+  }, [lineDims.height]);
 
   useEffect(() => {
     // Calculate the vertical line's position and height between first and last card
@@ -123,8 +111,8 @@ function App() {
       const last = cards[cards.length - 1].getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
       setLineDims({
-        top: first.top - containerRect.top + first.height / 2,
-        height: (last.top - first.top) + last.height / 2 - first.height / 2
+        top: (first.top - containerRect.top) + first.height / 2,
+        height: (last.top - first.top) + (last.height - first.height) / 2
       });
     }
   }, []);
@@ -299,24 +287,60 @@ function App() {
       <section id="hackathons" className="section hackathons-section">
         <h2>Hackathons & Major Projects</h2>
   <div className="alt-timeline-container" style={{position: 'relative', display: 'grid', gridTemplateColumns: '1fr 60px 1fr', gap: '0', alignItems: 'center'}} ref={timelineRef}>
-          {/* Vertical timeline line from first to last card */}
+          {/* Curvy zig-zag line from first to last card only */}
           {lineDims.height > 0 && (
-            <svg
-              width="16"
-              height={lineDims.height}
-              viewBox={`0 0 16 ${lineDims.height}`}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: lineDims.top,
-                transform: 'translateX(-50%)',
-                zIndex: 0,
-                pointerEvents: 'none',
-              }}
-              aria-hidden="true"
-            >
-              <rect x="6" y="0" width="4" height={lineDims.height} rx="2" fill="#00bcd4" opacity="0.7" />
-            </svg>
+            <>
+              <svg
+                width="32"
+                height={lineDims.height}
+                viewBox={`0 0 32 ${lineDims.height}`}
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: lineDims.top,
+                  transform: 'translateX(-50%)',
+                  zIndex: 0,
+                  pointerEvents: 'none',
+                }}
+                aria-hidden="true"
+              >
+                <path
+                  id="curvy-timeline-path"
+                  d={(() => {
+                    // Generate a zig-zag path from top to bottom (first to last card)
+                    const amplitude = 14;
+                    const period = 80;
+                    const width = 32;
+                    const centerX = width / 2;
+                    let d = `M${centerX},0`;
+                    let y = 0;
+                    let dir = 1;
+                    while (y < lineDims.height) {
+                      const nextY = Math.min(y + period, lineDims.height);
+                      d += ` Q${centerX + amplitude * dir},${y + period / 2} ${centerX},${nextY}`;
+                      y = nextY;
+                      dir *= -1;
+                    }
+                    return d;
+                  })()}
+                  stroke="#00bcd4"
+                  strokeWidth="5"
+                  fill="none"
+                  opacity="0.8"
+                  style={{filter: 'drop-shadow(0 0 6px #0ef6cc)'}}
+                />
+              </svg>
+              {/* Ship SVG absolutely positioned and animated along the path */}
+              <div ref={shipRef} style={{position: 'absolute', width: 48, height: 48, zIndex: 2, transition: 'left 0.2s, top 0.2s', pointerEvents: 'none'}}>
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <g>
+                    <rect x="18" y="28" width="12" height="8" rx="3" fill="#04364a" stroke="#00bcd4" strokeWidth="2"/>
+                    <polygon points="24,8 28,28 20,28" fill="#ffe0b2" stroke="#04364a" strokeWidth="2"/>
+                    <rect x="22" y="16" width="4" height="12" fill="#00bcd4"/>
+                  </g>
+                </svg>
+              </div>
+            </>
           )}
           {/* Timeline cards in zig-zag grid */}
           {[
