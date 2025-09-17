@@ -1,9 +1,74 @@
+// Vertical ship animation component for vertical timeline
+function ShipOnTimelineVertical() {
+  const shipRef = useRef(null);
+  useEffect(() => {
+    function moveShip() {
+      const path = document.getElementById('vertical-timeline-path');
+      if (!path) return;
+      const totalLength = path.getTotalLength();
+      const section = document.getElementById('hackathons');
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      // Progress: 0 at top, 1 at bottom of section
+      let progress = 1 - Math.max(0, Math.min(1, (rect.bottom - 100) / (windowHeight + rect.height - 100)));
+      progress = Math.max(0, Math.min(1, progress));
+      // Snap to event positions
+      const snapPoints = [0, 0.25, 0.5, 0.75, 1];
+      let closest = snapPoints[0];
+      for (let i = 1; i < snapPoints.length; i++) {
+        if (Math.abs(progress - snapPoints[i]) < Math.abs(progress - closest)) {
+          closest = snapPoints[i];
+        }
+      }
+      // If close to a snap point, snap to it
+      if (Math.abs(progress - closest) < 0.08) progress = closest;
+      const point = path.getPointAtLength(progress * totalLength);
+      if (shipRef.current) {
+        shipRef.current.style.left = `${point.x - 24}px`;
+        shipRef.current.style.top = `${point.y - 40}px`;
+      }
+    }
+    window.addEventListener('scroll', moveShip);
+    moveShip();
+    return () => window.removeEventListener('scroll', moveShip);
+  }, []);
+  return (
+    <div ref={shipRef} style={{position: 'absolute', width: 48, height: 48, zIndex: 2, transition: 'left 0.2s, top 0.2s'}}>
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <g>
+          <rect x="18" y="28" width="12" height="8" rx="3" fill="#04364a" stroke="#00bcd4" strokeWidth="2"/>
+          <polygon points="24,8 28,28 20,28" fill="#ffe0b2" stroke="#04364a" strokeWidth="2"/>
+          <rect x="22" y="16" width="4" height="12" fill="#00bcd4"/>
+        </g>
+      </svg>
+    </div>
+  );
+}
 import './App.css';
 import React, { useState, useEffect, useRef } from 'react';
 // ShipOnTimeline component must be defined at the top level, outside App
+
+const lightTheme = {
+  '--bg-color': '#e0f7fa', // light ocean blue
+  '--accent1': '#ffe0b2', // sandy beige
+  '--accent2': '#ffb6b9', // coral pink
+  '--accent3': '#fffde4', // sunlit gradient
+  '--text-color': '#00334e', // deep blue
+  '--nav-bg': '#b2ebf2',
+};
+const darkTheme = {
+  '--bg-color': '#0a192f', // deep navy
+  '--accent1': '#04364a', // teal
+  '--accent2': '#00bcd4', // bioluminescent blue
+  '--accent3': '#0ef6cc', // glowing accent
+  '--text-color': '#e0f7fa', // light blue
+  '--nav-bg': '#112240',
+};
+
+// ShipOnTimeline component must be defined at the top level, outside App
 function ShipOnTimeline() {
   const shipRef = useRef(null);
-
   useEffect(() => {
     function moveShip() {
       const path = document.getElementById('timeline-path');
@@ -25,7 +90,6 @@ function ShipOnTimeline() {
     moveShip();
     return () => window.removeEventListener('scroll', moveShip);
   }, []);
-
   return (
     <div ref={shipRef} style={{position: 'absolute', width: 48, height: 48, zIndex: 2, transition: 'left 0.2s, top 0.2s'}}>
       <svg width="48" height="48" viewBox="0 0 48 48">
@@ -39,26 +103,6 @@ function ShipOnTimeline() {
   );
 }
 
-
-
-
-const lightTheme = {
-  '--bg-color': '#e0f7fa', // light ocean blue
-  '--accent1': '#ffe0b2', // sandy beige
-  '--accent2': '#ffb6b9', // coral pink
-  '--accent3': '#fffde4', // sunlit gradient
-  '--text-color': '#00334e', // deep blue
-  '--nav-bg': '#b2ebf2',
-};
-const darkTheme = {
-  '--bg-color': '#0a192f', // deep navy
-  '--accent1': '#04364a', // teal
-  '--accent2': '#00bcd4', // bioluminescent blue
-  '--accent3': '#0ef6cc', // glowing accent
-  '--text-color': '#e0f7fa', // light blue
-  '--nav-bg': '#112240',
-};
-
 function applyTheme(theme) {
   for (const key in theme) {
     document.documentElement.style.setProperty(key, theme[key]);
@@ -67,6 +111,23 @@ function applyTheme(theme) {
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const timelineRef = useRef(null);
+  const [lineDims, setLineDims] = useState({ top: 0, height: 0 });
+
+  useEffect(() => {
+    // Calculate the vertical line's position and height between first and last card
+    const container = document.querySelector('.alt-timeline-container');
+    const cards = container ? container.querySelectorAll('.alt-timeline-card') : [];
+    if (cards.length >= 2) {
+      const first = cards[0].getBoundingClientRect();
+      const last = cards[cards.length - 1].getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      setLineDims({
+        top: first.top - containerRect.top + first.height / 2,
+        height: (last.top - first.top) + last.height / 2 - first.height / 2
+      });
+    }
+  }, []);
 
   // Set theme on mount and when darkMode changes
   useEffect(() => {
@@ -116,6 +177,7 @@ function App() {
           </div>
         </div>
       </section>
+
 
       <section id="about" className="section about-section">
         <div className="about-card">
@@ -236,31 +298,128 @@ function App() {
 
       <section id="hackathons" className="section hackathons-section">
         <h2>Hackathons & Major Projects</h2>
-        <div className="timeline-container" style={{position: 'relative', margin: '2rem 0'}}>
-          {/* SVG Timeline Path */}
-          <svg width="100%" height="120" viewBox="0 0 800 120" style={{position: 'absolute', left: 0, top: 0, zIndex: 0}}>
-            <path id="timeline-path" d="M 40 100 Q 200 20 400 100 T 760 100" stroke="#00bcd4" strokeWidth="6" fill="none"/>
-          </svg>
-          {/* Animated Ship */}
-          <ShipOnTimeline />
-          {/* Timeline Events */}
-          <div className="timeline-events" style={{position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', marginTop: '60px'}}>
-            <div className="timeline-event"><span>PyExpo 2025</span></div>
-            <div className="timeline-event"><span>Hack BIT 2025</span></div>
-            <div className="timeline-event"><span>KPR Hackathon</span></div>
-            <div className="timeline-event"><span>IteliFlow</span></div>
-            <div className="timeline-event"><span>IEEE Hackathon</span></div>
-          </div>
+        <div className="alt-timeline-container" style={{position: 'relative', display: 'grid', gridTemplateColumns: '1fr 40px 1fr', gap: '0', alignItems: 'center'}} ref={timelineRef}>
+          {/* Vertical timeline line from first to last card */}
+          {lineDims.height > 0 && (
+            <svg
+              width="6"
+              height={lineDims.height}
+              viewBox={`0 0 6 ${lineDims.height}`}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: lineDims.top,
+                transform: 'translateX(-50%)',
+                zIndex: 0,
+                pointerEvents: 'none',
+              }}
+              aria-hidden="true"
+            >
+              <rect x="2" y="0" width="2" height={lineDims.height} rx="2" fill="#00bcd4" opacity="0.5" />
+            </svg>
+          )}
+          {/* Timeline cards in zig-zag grid */}
+          {[
+            {
+              title: 'PyExpo 2025',
+              side: 'left',
+              role: 'Team Lead',
+              tech: ['Django', 'Python', 'PostgreSQL', 'Bootstrap'],
+              description: 'Built a local marketplace web app for farmers to sell produce directly to consumers, with real-time inventory, order tracking, and payment integration. Led a team of 4, handled backend and deployment.',
+              outcome: 'Won Best Social Impact Award. Used by 200+ local farmers.',
+              repo: 'https://github.com/T043_CODECRAFTERS',
+              image: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg',
+            },
+            {
+              title: 'Hack BIT 2025',
+              side: 'right',
+              role: 'AI/ML Developer',
+              tech: ['Python', 'OpenCV', 'scikit-learn', 'Flask'],
+              description: 'Developed a facial recognition attendance system for classrooms. Implemented face detection, recognition, and attendance logging with a web dashboard. Collaborated with 3 teammates.',
+              outcome: 'Winners in AI/ML track. Deployed in 2 pilot colleges.',
+              repo: 'https://github.com/BIT-25',
+              image: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
+            },
+            {
+              title: 'KPR Hackathon',
+              side: 'left',
+              role: 'Participant',
+              tech: ['React', 'Dialogflow', 'Node.js'],
+              description: 'Created an AI-powered virtual patient chatbot for psychology students to practice counseling. Designed conversation flows and integrated NLP for realistic scenarios.',
+              outcome: 'Finalist. Demoed to 100+ students.',
+              repo: 'https://github.com/KPR-Hackathon',
+              image: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+            },
+            {
+              title: 'IteliFlow',
+              side: 'right',
+              role: 'Automation Engineer',
+              tech: ['UiPath', 'Python', 'Excel'],
+              description: 'Automated the candidate selection process for a hackathon using UiPath bots. Extracted, filtered, and ranked applicants from spreadsheets, saving 20+ hours of manual work.',
+              outcome: 'Improved selection speed by 80%.',
+              repo: 'https://github.com/Selection_Automation',
+              image: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/uipath/uipath-original.svg',
+            },
+            {
+              title: 'IEEE Hackathon',
+              side: 'left',
+              role: 'Hardware Developer',
+              tech: ['Arduino', 'C++', 'Python'],
+              description: 'Built a portable milk analyzer device for dairy supply chains. Designed hardware, wrote firmware, and built a Python dashboard for data analysis.',
+              outcome: 'Prototype tested with 3 local dairies.',
+              repo: 'https://github.com/Portable-Milk-Analyzer',
+              image: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original.svg',
+            },
+          ].map((event, i) => (
+            <React.Fragment key={event.title}>
+              {event.side === 'left' ? (
+                <div className="alt-timeline-card left" style={{gridColumn: '1 / 2', justifySelf: 'end'}}>
+                  <div className="alt-timeline-card-inner">
+                    <div className="alt-timeline-card-header">
+                      <img src={event.image} alt={event.title} className="alt-timeline-card-img" />
+                      <div>
+                        <h3>{event.title}</h3>
+                        <span className="alt-timeline-role">{event.role}</span>
+                      </div>
+                    </div>
+                    <div className="alt-timeline-card-body">
+                      <p className="alt-timeline-desc">{event.description}</p>
+                      <div className="alt-timeline-tech">
+                        {event.tech.map(t => <span key={t} className="alt-timeline-tech-chip">{t}</span>)}
+                      </div>
+                      <div className="alt-timeline-outcome">{event.outcome}</div>
+                      <a href={event.repo} className="alt-timeline-link" target="_blank" rel="noopener noreferrer">View Repo</a>
+                    </div>
+                  </div>
+                </div>
+              ) : <div />}
+              {/* Spacer for the timeline line */}
+              <div style={{gridColumn: '2 / 3'}} />
+              {event.side === 'right' ? (
+                <div className="alt-timeline-card right" style={{gridColumn: '3 / 4', justifySelf: 'start'}}>
+                  <div className="alt-timeline-card-inner">
+                    <div className="alt-timeline-card-header">
+                      <img src={event.image} alt={event.title} className="alt-timeline-card-img" />
+                      <div>
+                        <h3>{event.title}</h3>
+                        <span className="alt-timeline-role">{event.role}</span>
+                      </div>
+                    </div>
+                    <div className="alt-timeline-card-body">
+                      <p className="alt-timeline-desc">{event.description}</p>
+                      <div className="alt-timeline-tech">
+                        {event.tech.map(t => <span key={t} className="alt-timeline-tech-chip">{t}</span>)}
+                      </div>
+                      <div className="alt-timeline-outcome">{event.outcome}</div>
+                      <a href={event.repo} className="alt-timeline-link" target="_blank" rel="noopener noreferrer">View Repo</a>
+                    </div>
+                  </div>
+                </div>
+              ) : <div />}
+            </React.Fragment>
+          ))}
         </div>
-        <ul>
-          <li><strong>PyExpo 2025</strong> (Team Lead): Built a local marketplace for farmers using Django. [Repo: T043_CODECRAFTERS]</li>
-          <li><strong>Hack BIT 2025</strong> (Team Member, Winners in AI/ML): Facial attendance system with AI/ML. [Repo: BIT-25]</li>
-          <li><strong>KPR Hackathon</strong> (Participant): AI-powered virtual patient chat for psychology students. [Repo: KPR-Hackathon]</li>
-          <li><strong>IteliFlow</strong> (Participant): Automated hackathon candidate selection with UI Path. [Repo: Selection_Automation]</li>
-          <li><strong>IEEE Hackathon</strong> (Participant): Portable milk analyzer device for dairy supply chains. [Repo: Portable-Milk-Analyzer]</li>
-        </ul>
       </section>
-
 
       <section id="other-projects" className="section other-projects-section">
         <h2>Other Projects</h2>
