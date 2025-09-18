@@ -291,9 +291,9 @@ function App() {
           {lineDims.height > 0 && (
             <>
               <svg
-                width="32"
+                width="80"
                 height={lineDims.height}
-                viewBox={`0 0 32 ${lineDims.height}`}
+                viewBox={`0 0 80 ${lineDims.height}`}
                 style={{
                   position: 'absolute',
                   left: '50%',
@@ -308,9 +308,9 @@ function App() {
                   id="curvy-timeline-path"
                   d={(() => {
                     // Generate a zig-zag path from top to bottom (first to last card)
-                    const amplitude = 14;
+                    const amplitude = 32;
                     const period = 80;
-                    const width = 32;
+                    const width = 80;
                     const centerX = width / 2;
                     let d = `M${centerX},0`;
                     let y = 0;
@@ -324,19 +324,19 @@ function App() {
                     return d;
                   })()}
                   stroke="#00bcd4"
-                  strokeWidth="5"
+                  strokeWidth="20"
                   fill="none"
                   opacity="0.8"
-                  style={{filter: 'drop-shadow(0 0 6px #0ef6cc)'}}
+                  style={{filter: 'drop-shadow(0 0 14px #0ef6cc)'}}
                 />
               </svg>
               {/* Ship SVG absolutely positioned and animated along the path */}
-              <div ref={shipRef} style={{position: 'absolute', width: 48, height: 48, zIndex: 2, transition: 'left 0.2s, top 0.2s', pointerEvents: 'none'}}>
-                <svg width="48" height="48" viewBox="0 0 48 48">
+              <div ref={shipRef} style={{position: 'absolute', width: 80, height: 80, zIndex: 2, transition: 'left 0.2s, top 0.2s', pointerEvents: 'none'}}>
+                <svg width="80" height="80" viewBox="0 0 80 80">
                   <g>
-                    <rect x="18" y="28" width="12" height="8" rx="3" fill="#04364a" stroke="#00bcd4" strokeWidth="2"/>
-                    <polygon points="24,8 28,28 20,28" fill="#ffe0b2" stroke="#04364a" strokeWidth="2"/>
-                    <rect x="22" y="16" width="4" height="12" fill="#00bcd4"/>
+                    <rect x="30" y="46" width="20" height="14" rx="5" fill="#04364a" stroke="#00bcd4" strokeWidth="3"/>
+                    <polygon points="40,14 48,46 32,46" fill="#ffe0b2" stroke="#04364a" strokeWidth="3"/>
+                    <rect x="36" y="26" width="8" height="20" fill="#00bcd4"/>
                   </g>
                 </svg>
               </div>
